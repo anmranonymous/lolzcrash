@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAQ — LolzCrash</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="/" class="nav-logo">LOLZ<span>CRASH</span></a>
+  <div class="nav-links"><a href="/">Home</a><a href="/support">Support</a></div>
+</nav>
+
+<div class="faq-container">
+  <h1 class="page-title text-center">❓ Frequently Asked Questions</h1>
+  <p class="text-center text-dim" style="margin-bottom:2.5rem">Everything you need to know about LolzCrash</p>
+
+  <div id="faqList"></div>
+
+  <div class="card" style="text-align:center;margin-top:2rem">
+    <p style="color:var(--text-dim);margin-bottom:1rem">Still have questions? We're happy to help!</p>
+    <a href="https://t.me/lolzcrash" target="_blank" class="btn btn-primary">📱 Chat on Telegram</a>
+    <a href="/support" class="btn btn-ghost" style="margin-left:0.5rem">📩 Send Message</a>
+  </div>
+</div>
+
+<footer>
+  <p>© 2024 LolzCrash · <a href="https://t.me/lolzcrash" target="_blank">Telegram</a></p>
+</footer>
+<script src="/js/app.js"></script>
+<script>
+const faqs = [
+  { q: "What is LolzCrash?", a: "LolzCrash is an educational crash betting game. A multiplier starts at 1.00x and increases. You must cash out before it crashes — or lose your bet. This is a demo project for educational purposes." },
+  { q: "How do I get started?", a: "Sign up for a free account and receive 10–20 PKR welcome bonus instantly. Use the bonus to try the game, then deposit more to keep playing." },
+  { q: "What are the minimum deposit/withdrawal amounts?", a: "Minimum deposit is ₨100. Minimum withdrawal is ₨500. Deposits and withdrawals are processed manually by admin within 1–24 hours." },
+  { q: "How do I deposit funds?", a: "Go to the Deposit page, choose JazzCash or EasyPaisa, send the exact amount to 03247720266 (Abdullah), then submit your Transaction ID in the form. Admin will credit your account after verification." },
+  { q: "How does the crash game work?", a: "The multiplier increases from 1.00x. You can place a bet and must click 'Cash Out' before the game crashes. If you cash out at 3.5x with ₨100 bet, you get ₨350. If it crashes before you cash out, you lose the bet." },
+  { q: "What is Auto Cashout?", a: "Set an Auto Cashout multiplier (e.g. 2.0x) and your bet will automatically cash out when the multiplier reaches that value — you don't need to click manually." },
+  { q: "How long do withdrawals take?", a: "Withdrawals are processed manually within 24 hours. If you haven't received your payment after 24 hours, contact us on Telegram at @lolzcrash." },
+  { q: "Is this safe?", a: "This is an educational demo project. All transactions are manual and reviewed by admin. Never deposit more than you can afford to lose." },
+  { q: "What payment methods are supported?", a: "We currently support JazzCash and EasyPaisa. Both use the same account: 03247720266 (Abdullah)." },
+  { q: "How do I contact support?", a: "You can reach us on Telegram @lolzcrash for the fastest response, or use the Support page to send a message. We typically respond within a few hours." }
+];
+
+const list = document.getElementById('faqList');
+faqs.forEach((f, i) => {
+  const el = document.createElement('div');
+  el.className = 'faq-item';
+  el.innerHTML = `<div class="faq-question">${f.q}<span class="faq-chevron">▼</span></div><div class="faq-answer">${f.a}</div>`;
+  el.querySelector('.faq-question').addEventListener('click', () => el.classList.toggle('open'));
+  list.appendChild(el);
+});
+</script>
+</body>
+</html>

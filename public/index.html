@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LolzCrash — Crash Game</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="/" class="nav-logo">LOLZ<span>CRASH</span></a>
+  <div class="nav-links">
+    <a href="/">🎮 Game</a>
+    <a href="/faq">❓ FAQ</a>
+    <a href="/support">💬 Support</a>
+    <span id="auth-links">
+      <a href="/login">Login</a>
+      <a href="/signup" class="btn btn-primary btn-sm">Sign Up</a>
+    </span>
+    <span id="user-links" style="display:none">
+      <span class="nav-balance" id="nav-balance">₨ 0.00</span>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/deposit">Deposit</a>
+      <button class="btn btn-ghost btn-sm" id="logout-btn">Logout</button>
+    </span>
+  </div>
+</nav>
+
+<section class="hero">
+  <h1><span class="highlight">CRASH</span> & <span class="highlight2">WIN</span></h1>
+  <p>Place your bet, watch the multiplier climb, cash out before it crashes!</p>
+  <a href="/signup" class="btn btn-primary btn-lg" id="hero-cta">🚀 Start Playing Now</a>
+</section>
+
+<!-- History Bar -->
+<div style="max-width:1200px;margin:0 auto;padding:0 1.5rem 0.5rem">
+  <div class="card" style="padding:0.75rem 1.25rem">
+    <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+      <span style="font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);white-space:nowrap">Recent Rounds</span>
+      <div id="historyGrid" class="history-grid" style="padding:0;flex:1"></div>
+    </div>
+  </div>
+</div>
+
+<div class="game-container">
+  <!-- Crash Canvas -->
+  <div class="crash-display">
+    <div class="crash-header">
+      <div class="crash-status">
+        <div class="status-dot"></div>
+        <span id="roundStatus">⏳ Starting...</span>
+      </div>
+      <span style="font-size:0.8rem;color:var(--text-dim)">LOLZCRASH v1.0</span>
+    </div>
+    <div style="position:relative">
+      <canvas id="crashCanvas"></canvas>
+      <div class="multiplier-display" id="multiplierDisplay">
+        <span class="mult-label">MULTIPLIER</span>
+        <span id="multValue">1.00x</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bet Panel -->
+  <div class="bet-panel">
+    <div class="bet-card">
+      <h3>Place Your Bet</h3>
+      <div class="input-group">
+        <label>Bet Amount (PKR)</label>
+        <input type="number" id="betAmount" placeholder="Enter amount..." min="1" value="10">
+      </div>
+      <div class="quick-amounts">
+        <button class="quick-btn" data-amount="10">10</button>
+        <button class="quick-btn" data-amount="50">50</button>
+        <button class="quick-btn" data-amount="100">100</button>
+        <button class="quick-btn" data-amount="500">500</button>
+      </div>
+      <div class="input-group">
+        <label>Auto Cashout (optional)</label>
+        <input type="number" id="autoCashout" placeholder="e.g. 2.00" step="0.1" min="1.01">
+      </div>
+      <div class="bet-actions">
+        <button class="btn btn-primary" id="placeBetBtn">🎯 Place Bet</button>
+        <button class="btn btn-success" id="cashoutBtn" disabled>💰 Cash Out</button>
+      </div>
+    </div>
+
+    <!-- Live Feed -->
+    <div class="live-feed">
+      <div class="live-feed-header">
+        <div class="status-dot"></div>
+        Live Bets
+      </div>
+      <div class="feed-list" id="feedList"></div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="bet-card" style="padding:1rem">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+        <a href="/deposit" class="btn btn-ghost btn-sm" style="justify-content:center">💳 Deposit</a>
+        <a href="/withdraw" class="btn btn-ghost btn-sm" style="justify-content:center">💸 Withdraw</a>
+        <a href="https://t.me/lolzcrash" target="_blank" class="btn btn-ghost btn-sm" style="justify-content:center">📱 Telegram</a>
+        <a href="/support" class="btn btn-ghost btn-sm" style="justify-content:center">🆘 Support</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>⚠️ This is an <strong>educational project only</strong>. Not for real money gambling.</p>
+  <p class="mt-1">© 2024 LolzCrash · <a href="/faq">FAQ</a> · <a href="/support">Support</a> · <a href="https://t.me/lolzcrash" target="_blank">Telegram</a></p>
+</footer>
+
+<script src="/js/app.js"></script>
+<script>
+// Check auth state
+(async () => {
+  const data = await api('/api/me');
+  if (data.success) {
+    document.getElementById('auth-links').style.display = 'none';
+    document.getElementById('user-links').style.display = 'flex';
+    document.getElementById('user-links').style.alignItems = 'center';
+    document.getElementById('user-links').style.gap = '0.5rem';
+    document.getElementById('nav-balance').textContent = `₨ ${data.user.balance.toFixed(2)}`;
+    document.getElementById('hero-cta').textContent = '🎮 Play Now';
+    document.getElementById('hero-cta').href = '#';
+  }
+})();
+</script>
+<script src="/js/crash.js"></script>
+</body>
+</html>

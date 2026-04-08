@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — LolzCrash</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="/" class="nav-logo">LOLZ<span>CRASH</span></a>
+  <div class="nav-links" style="align-items:center;gap:0.5rem">
+    <a href="/">🎮 Game</a>
+    <a href="/deposit">💳 Deposit</a>
+    <a href="/withdraw">💸 Withdraw</a>
+    <span class="nav-balance" id="nav-balance">₨ 0.00</span>
+    <button class="btn btn-ghost btn-sm" id="logout-btn">Logout</button>
+  </div>
+</nav>
+
+<div class="dashboard-container">
+  <h1 class="page-title">👋 Welcome, <span class="text-accent" id="usernameDisplay">Player</span></h1>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">💰 Balance</div>
+      <div class="stat-value" id="balanceDisplay">₨ 0.00</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">🎁 Welcome Bonus</div>
+      <div class="stat-value text-gold" id="bonusDisplay">₨ 0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">📅 Member Since</div>
+      <div class="stat-value" style="font-size:1rem" id="memberSince">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">📧 Email</div>
+      <div class="stat-value" style="font-size:0.9rem;word-break:break-all" id="emailDisplay">—</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem">
+    <a href="/deposit" class="card" style="text-decoration:none;text-align:center;padding:2rem;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div style="font-size:2.5rem;margin-bottom:0.5rem">💳</div>
+      <div style="font-weight:700;font-size:1.1rem;margin-bottom:0.25rem">Deposit</div>
+      <div style="color:var(--text-dim);font-size:0.85rem">Add funds via JazzCash / EasyPaisa</div>
+    </a>
+    <a href="/withdraw" class="card" style="text-decoration:none;text-align:center;padding:2rem;transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent2)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div style="font-size:2.5rem;margin-bottom:0.5rem">💸</div>
+      <div style="font-weight:700;font-size:1.1rem;margin-bottom:0.25rem">Withdraw</div>
+      <div style="color:var(--text-dim);font-size:0.85rem">Min ₨500 — Processed in 24hrs</div>
+    </a>
+  </div>
+
+  <!-- Deposit History -->
+  <div class="card mb-2" style="margin-bottom:1.5rem">
+    <h3 style="font-family:Rajdhani,sans-serif;letter-spacing:1px;margin-bottom:1rem">📥 My Deposits</h3>
+    <div style="overflow-x:auto">
+      <table class="data-table">
+        <thead><tr><th>Amount</th><th>Method</th><th>Tx ID</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody id="depositsTable"><tr><td colspan="5" style="text-align:center;color:var(--text-dim);padding:2rem">No deposits yet</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Withdrawal History -->
+  <div class="card">
+    <h3 style="font-family:Rajdhani,sans-serif;letter-spacing:1px;margin-bottom:1rem">📤 My Withdrawals</h3>
+    <div style="overflow-x:auto">
+      <table class="data-table">
+        <thead><tr><th>Amount</th><th>Method</th><th>Account</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody id="withdrawalsTable"><tr><td colspan="5" style="text-align:center;color:var(--text-dim);padding:2rem">No withdrawals yet</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>© 2024 LolzCrash · Educational Project · <a href="https://t.me/lolzcrash" target="_blank">Telegram</a></p>
+</footer>
+<script src="/js/app.js"></script>
+<script>
+(async () => {
+  const data = await api('/api/me');
+  if (!data.success) return window.location.href = '/login';
+  const u = data.user;
+  document.getElementById('usernameDisplay').textContent = u.username;
+  document.getElementById('balanceDisplay').textContent = `₨ ${u.balance.toFixed(2)}`;
+  document.getElementById('bonusDisplay').textContent = `₨ ${u.welcomeBonus || 0}`;
+  document.getElementById('nav-balance').textContent = `₨ ${u.balance.toFixed(2)}`;
+  document.getElementById('emailDisplay').textContent = u.email;
+  document.getElementById('memberSince').textContent = new Date(u.createdAt).toLocaleDateString();
+
+  // Load deposits
+  const deps = await fetch('/api/admin/stats').then(() => null).catch(() => null);
+  // Fetch user deposits via a simple approach - server filters by session
+  const depRes = await fetch('/api/my-deposits').catch(() => null);
+  if (depRes) {
+    const depData = await depRes.json();
+    if (depData.deposits?.length) {
+      document.getElementById('depositsTable').innerHTML = depData.deposits.map(d => `
+        <tr>
+          <td class="text-accent">₨${d.amount}</td>
+          <td>${d.method}</td>
+          <td style="font-family:monospace;font-size:0.8rem">${d.txId}</td>
+          <td><span class="badge badge-${d.status}">${d.status.toUpperCase()}</span></td>
+          <td style="color:var(--text-dim)">${new Date(d.createdAt).toLocaleDateString()}</td>
+        </tr>`).join('');
+    }
+    if (depData.withdrawals?.length) {
+      document.getElementById('withdrawalsTable').innerHTML = depData.withdrawals.map(w => `
+        <tr>
+          <td class="text-accent">₨${w.amount}</td>
+          <td>${w.method}</td>
+          <td style="font-family:monospace;font-size:0.8rem">${w.accountNumber}</td>
+          <td><span class="badge badge-${w.status}">${w.status.toUpperCase()}</span></td>
+          <td style="color:var(--text-dim)">${new Date(w.createdAt).toLocaleDateString()}</td>
+        </tr>`).join('');
+    }
+  }
+})();
+</script>
+</body>
+</html>

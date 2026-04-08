@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deposit — LolzCrash</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="/" class="nav-logo">LOLZ<span>CRASH</span></a>
+  <div class="nav-links" style="align-items:center;gap:0.5rem">
+    <a href="/dashboard">Dashboard</a>
+    <span class="nav-balance" id="nav-balance">₨ 0.00</span>
+    <button class="btn btn-ghost btn-sm" id="logout-btn">Logout</button>
+  </div>
+</nav>
+
+<div class="deposit-container">
+  <h1 class="page-title">💳 Deposit Funds</h1>
+
+  <div class="alert alert-warning">⚠️ Send the <strong>EXACT amount</strong> shown below. Wrong amounts may cause delays.</div>
+
+  <h3 style="margin-bottom:1rem;color:var(--text-dim);font-size:0.9rem;text-transform:uppercase;letter-spacing:1px">Select Payment Method</h3>
+  <div class="payment-methods">
+    <div class="method-card active" id="method-jazzcash" onclick="selectMethod('JazzCash')">
+      <div class="method-icon">📱</div>
+      <div class="method-name">JazzCash</div>
+      <div class="method-num">03247720266</div>
+    </div>
+    <div class="method-card" id="method-easypaisa" onclick="selectMethod('EasyPaisa')">
+      <div class="method-icon">💚</div>
+      <div class="method-name">EasyPaisa</div>
+      <div class="method-num">03247720266</div>
+    </div>
+  </div>
+
+  <div class="payment-info" id="paymentInfo">
+    <p>📲 Send payment to:</p>
+    <p>📞 Account: <strong>03247720266</strong></p>
+    <p>👤 Name: <strong>Abdullah</strong></p>
+    <p style="margin-top:0.75rem;color:var(--accent2)">⚠️ Send the <strong>EXACT amount</strong> you enter below. Write your <strong>Username</strong> in the message/reference field when sending.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="font-family:Rajdhani,sans-serif;letter-spacing:1px;margin-bottom:1.25rem">Enter Payment Details</h3>
+    <input type="hidden" id="selectedMethod" value="JazzCash">
+    <div class="input-group">
+      <label>Amount (PKR) — Minimum ₨100</label>
+      <input type="number" id="depAmount" placeholder="100" min="100">
+    </div>
+    <div class="input-group">
+      <label>Transaction ID / Reference Number</label>
+      <input type="text" id="txId" placeholder="e.g. TXN123456789">
+    </div>
+    <div class="alert alert-info mt-2">ℹ️ Your balance will be updated within <strong>1–2 hours</strong> after admin approval.</div>
+    <button class="btn btn-primary w-full mt-2" id="depositBtn" style="justify-content:center">📤 Submit Deposit Request</button>
+  </div>
+</div>
+
+<footer>
+  <p>© 2024 LolzCrash · Need help? <a href="/support">Contact Support</a></p>
+</footer>
+<script src="/js/app.js"></script>
+<script>
+let selectedMethod = 'JazzCash';
+function selectMethod(m) {
+  selectedMethod = m;
+  document.getElementById('selectedMethod').value = m;
+  document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
+  document.getElementById(`method-${m.toLowerCase()}`).classList.add('active');
+}
+
+document.getElementById('depositBtn').addEventListener('click', async () => {
+  const amount = document.getElementById('depAmount').value;
+  const txId = document.getElementById('txId').value.trim();
+  if (!amount || parseFloat(amount) < 100) return toast('Minimum deposit is ₨100', 'error');
+  if (!txId) return toast('Enter Transaction ID', 'error');
+  const btn = document.getElementById('depositBtn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+  const data = await api('/api/deposit', 'POST', { amount: parseFloat(amount), method: selectedMethod, txId });
+  if (data.success) { toast(data.msg, 'success'); setTimeout(() => window.location.href = '/dashboard', 2000); }
+  else { toast(data.msg, 'error'); btn.disabled = false; btn.textContent = '📤 Submit Deposit Request'; }
+});
+</script>
+</body>
+</html>

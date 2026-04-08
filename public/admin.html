@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — LolzCrash</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .admin-badge { background: rgba(255,61,113,0.15); color: var(--accent2); border: 1px solid rgba(255,61,113,0.3); padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+    .action-btns { display: flex; gap: 6px; }
+    .stat-mini { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; }
+    .stat-mini .label { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .stat-mini .val { font-family: var(--font-mono); font-size: 1.6rem; font-weight: 700; }
+    .bal-edit { display: flex; gap: 6px; align-items: center; }
+    .bal-edit input { width: 90px; }
+  </style>
+</head>
+<body>
+  <div style="display:flex">
+    <!-- Sidebar -->
+    <div class="admin-sidebar">
+      <div class="admin-logo">⚙ ADMIN</div>
+      <div class="admin-nav">
+        <a class="active" onclick="showSection('overview')">📊 Overview</a>
+        <a onclick="showSection('users')">👥 Users</a>
+        <a onclick="showSection('deposits')">💳 Deposits</a>
+        <a onclick="showSection('withdrawals')">💸 Withdrawals</a>
+        <a onclick="showSection('support')">💬 Support</a>
+        <a href="/" style="margin-top:auto;color:var(--accent2)">← Back to Site</a>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="admin-main">
+
+      <!-- Overview -->
+      <div id="sec-overview" class="admin-section active">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+          <h2 style="font-family:var(--font-display);font-size:1.2rem;letter-spacing:2px">DASHBOARD OVERVIEW</h2>
+          <span class="admin-badge">ADMIN</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px" id="statsGrid">
+          <div class="stat-mini"><div class="label">Total Users</div><div class="val blue" id="sTotalUsers">—</div></div>
+          <div class="stat-mini"><div class="label">Total Balance</div><div class="val green" id="sTotalBal">—</div></div>
+          <div class="stat-mini"><div class="label">Pending Deposits</div><div class="val" style="color:var(--accent4)" id="sPendDep">—</div></div>
+          <div class="stat-mini"><div class="label">Pending Withdrawals</div><div class="val" style="color:var(--accent4)" id="sPendWith">—</div></div>
+          <div class="stat-mini"><div class="label">Open Tickets</div><div class="val" style="color:var(--accent)" id="sOpenTix">—</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="card">
+            <h3 style="font-size:0.82rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:16px">Quick Actions</h3>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <button class="btn btn-outline btn-sm" onclick="showSection('deposits')">Review Pending Deposits</button>
+              <button class="btn btn-outline btn-sm" onclick="showSection('withdrawals')">Review Withdrawals</button>
+              <button class="btn btn-outline btn-sm" onclick="showSection('support')">Check Support Tickets</button>
+            </div>
+          </div>
+          <div class="card">
+            <h3 style="font-size:0.82rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:16px">Payment Details</h3>
+            <p style="font-size:0.88rem;color:var(--text-secondary);line-height:1.8">
+              Account: <strong style="color:var(--accent);font-family:var(--font-mono)">03247720266</strong><br>
+              Name: <strong style="color:var(--accent)">Abdullah</strong><br>
+              Methods: JazzCash & EasyPaisa
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Users -->
+      <div id="sec-users" class="admin-section">
+        <h2 style="font-family:var(--font-display);font-size:1.2rem;letter-spacing:2px;margin-bottom:24px">USER MANAGEMENT</h2>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Username</th><th>Email</th><th>Balance</th><th>Games</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="usersTable"><tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-muted)">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Deposits -->
+      <div id="sec-deposits" class="admin-section">
+        <h2 style="font-family:var(--font-display);font-size:1.2rem;letter-spacing:2px;margin-bottom:24px">DEPOSIT REQUESTS</h2>
+        <div class="card">
+          <div class="tabs">
+            <button class="tab-btn active" onclick="filterDeposits('pending')">Pending</button>
+            <button class="tab-btn" onclick="filterDeposits('all')">All</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Date</th><th>User</th><th>Method</th><th>Amount</th><th>TX ID</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="depositsTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Withdrawals -->
+      <div id="sec-withdrawals" class="admin-section">
+        <h2 style="font-family:var(--font-display);font-size:1.2rem;letter-spacing:2px;margin-bottom:24px">WITHDRAWAL REQUESTS</h2>
+        <div class="card">
+          <div class="tabs">
+            <button class="tab-btn active" onclick="filterWithdrawals('pending')">Pending</button>
+            <button class="tab-btn" onclick="filterWithdrawals('all')">All</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Date</th><th>User</th><th>Method</th><th>Amount</th><th>Account</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="withdrawalsTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Support -->
+      <div id="sec-support" class="admin-section">
+        <h2 style="font-family:var(--font-display);font-size:1.2rem;letter-spacing:2px;margin-bottom:24px">SUPPORT TICKETS</h2>
+        <div id="supportTickets"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Balance Edit Modal -->
+  <div id="balModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:none;align-items:center;justify-content:center">
+    <div class="card" style="max-width:380px;width:90%">
+      <h3 style="margin-bottom:16px;font-family:var(--font-display)">Edit Balance</h3>
+      <p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:16px">User: <strong id="balUsername" style="color:var(--accent)"></strong></p>
+      <div class="form-group">
+        <label class="form-label">Amount (PKR)</label>
+        <input class="form-control" type="number" id="balAmount" placeholder="Amount" min="1">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <button class="btn btn-success btn-sm" onclick="doBalAction('add')">+ Add</button>
+        <button class="btn btn-danger btn-sm" onclick="doBalAction('deduct')">- Deduct</button>
+        <button class="btn btn-outline btn-sm" onclick="closeBalModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/utils.js"></script>
+  <script>
+    let allDeposits = [], allWithdrawals = [], currentBalUserId = null;
+    let depositFilter = 'pending', withdrawalFilter = 'pending';
+
+    function showSection(name) {
+      document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.admin-nav a').forEach(a => a.classList.remove('active'));
+      document.getElementById(`sec-${name}`).classList.add('active');
+      event?.target?.classList.add('active');
+      if (name === 'overview') loadStats();
+      if (name === 'users') loadUsers();
+      if (name === 'deposits') loadDeposits();
+      if (name === 'withdrawals') loadWithdrawals();
+      if (name === 'support') loadSupport();
+    }
+
+    async function loadStats() {
+      const s = await API.get('/api/admin/stats');
+      document.getElementById('sTotalUsers').textContent = s.totalUsers;
+      document.getElementById('sTotalBal').textContent = '₨' + s.totalBalance;
+      document.getElementById('sPendDep').textContent = s.pendingDeposits;
+      document.getElementById('sPendWith').textContent = s.pendingWithdrawals;
+      document.getElementById('sOpenTix').textContent = s.openTickets;
+    }
+
+    async function loadUsers() {
+      const users = await API.get('/api/admin/users');
+      const tbody = document.getElementById('usersTable');
+      tbody.innerHTML = users.map(u => `
+        <tr>
+          <td style="font-weight:700">${u.username}</td>
+          <td style="color:var(--text-muted)">${u.email}</td>
+          <td style="font-family:var(--font-mono);color:var(--accent3)">₨${parseFloat(u.balance).toFixed(2)}</td>
+          <td>${u.gamesPlayed}</td>
+          <td><span class="badge ${u.isActive ? 'badge-approved' : 'badge-rejected'}">${u.isActive ? 'Active' : 'Banned'}</span></td>
+          <td>
+            <div class="action-btns">
+              <button class="btn btn-outline btn-sm" onclick="openBalModal('${u.id}','${u.username}')">Edit Bal</button>
+              <button class="btn btn-sm ${u.isActive ? 'btn-danger' : 'btn-success'}" onclick="toggleUser('${u.id}', this)">${u.isActive ? 'Ban' : 'Unban'}</button>
+            </div>
+          </td>
+        </tr>`).join('');
+    }
+
+    async function loadDeposits() {
+      allDeposits = await API.get('/api/admin/deposits');
+      renderDeposits();
+    }
+
+    function filterDeposits(f) {
+      depositFilter = f;
+      document.querySelectorAll('#sec-deposits .tab-btn').forEach((b, i) => b.classList.toggle('active', (f === 'pending') === (i === 0)));
+      renderDeposits();
+    }
+
+    function renderDeposits() {
+      const list = depositFilter === 'pending' ? allDeposits.filter(d => d.status === 'pending') : allDeposits;
+      const tbody = document.getElementById('depositsTable');
+      if (!list.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted)">No deposits</td></tr>'; return; }
+      tbody.innerHTML = list.map(d => `
+        <tr>
+          <td style="font-size:0.82rem;color:var(--text-muted)">${formatDate(d.createdAt)}</td>
+          <td style="font-weight:700">${d.username}</td>
+          <td style="text-transform:capitalize">${d.method}</td>
+          <td style="font-family:var(--font-mono);color:var(--accent3)">₨${d.amount}</td>
+          <td style="font-family:var(--font-mono);font-size:0.82rem">${d.txId}</td>
+          <td><span class="badge badge-${d.status}">${d.status}</span></td>
+          <td>
+            ${d.status === 'pending' ? `
+            <div class="action-btns">
+              <button class="btn btn-success btn-sm" onclick="depositAction('${d.id}','approved')">✓ Approve</button>
+              <button class="btn btn-danger btn-sm" onclick="depositAction('${d.id}','rejected')">✗ Reject</button>
+            </div>` : '<span style="color:var(--text-muted);font-size:0.82rem">Processed</span>'}
+          </td>
+        </tr>`).join('');
+    }
+
+    async function depositAction(id, action) {
+      if (!confirm(`${action} this deposit?`)) return;
+      await API.post('/api/admin/deposits/action', { depositId: id, action });
+      Toast.show(`Deposit ${action}!`, action === 'approved' ? 'success' : 'error');
+      loadDeposits();
+      loadStats();
+    }
+
+    async function loadWithdrawals() {
+      allWithdrawals = await API.get('/api/admin/withdrawals');
+      renderWithdrawals();
+    }
+
+    function filterWithdrawals(f) {
+      withdrawalFilter = f;
+      document.querySelectorAll('#sec-withdrawals .tab-btn').forEach((b, i) => b.classList.toggle('active', (f === 'pending') === (i === 0)));
+      renderWithdrawals();
+    }
+
+    function renderWithdrawals() {
+      const list = withdrawalFilter === 'pending' ? allWithdrawals.filter(w => w.status === 'pending') : allWithdrawals;
+      const tbody = document.getElementById('withdrawalsTable');
+      if (!list.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted)">No withdrawals</td></tr>'; return; }
+      tbody.innerHTML = list.map(w => `
+        <tr>
+          <td style="font-size:0.82rem;color:var(--text-muted)">${formatDate(w.createdAt)}</td>
+          <td style="font-weight:700">${w.username}</td>
+          <td style="text-transform:capitalize">${w.method}</td>
+          <td style="font-family:var(--font-mono);color:var(--accent2)">₨${w.amount}</td>
+          <td style="font-family:var(--font-mono);font-size:0.82rem">${w.accountNumber}</td>
+          <td><span class="badge badge-${w.status}">${w.status}</span></td>
+          <td>
+            ${w.status === 'pending' ? `
+            <div class="action-btns">
+              <button class="btn btn-success btn-sm" onclick="withdrawalAction('${w.id}','approved')">✓ Done</button>
+              <button class="btn btn-danger btn-sm" onclick="withdrawalAction('${w.id}','rejected')">✗ Reject</button>
+            </div>` : '<span style="color:var(--text-muted);font-size:0.82rem">Processed</span>'}
+          </td>
+        </tr>`).join('');
+    }
+
+    async function withdrawalAction(id, action) {
+      if (!confirm(`${action} this withdrawal?`)) return;
+      await API.post('/api/admin/withdrawals/action', { withdrawalId: id, action });
+      Toast.show(`Withdrawal ${action}!`, action === 'approved' ? 'success' : 'error');
+      loadWithdrawals();
+    }
+
+    async function loadSupport() {
+      const tickets = await API.get('/api/admin/support');
+      const container = document.getElementById('supportTickets');
+      if (!tickets.length) { container.innerHTML = '<div class="card" style="text-align:center;color:var(--text-muted);padding:40px">No support tickets</div>'; return; }
+      container.innerHTML = tickets.map(t => `
+        <div class="card" style="margin-bottom:16px">
+          <div class="flex-between" style="margin-bottom:12px">
+            <div>
+              <strong>${t.name}</strong> <span style="color:var(--text-muted);font-size:0.88rem">&lt;${t.email}&gt;</span>
+              <span class="badge badge-${t.status}" style="margin-left:8px">${t.status}</span>
+            </div>
+            <span style="color:var(--text-muted);font-size:0.8rem">${formatDate(t.createdAt)}</span>
+          </div>
+          <div style="color:var(--accent);font-weight:700;margin-bottom:8px">${t.subject}</div>
+          <p style="color:var(--text-secondary);font-size:0.92rem;margin-bottom:16px">${t.message}</p>
+          ${t.replies.length ? t.replies.map(r => `
+            <div style="background:rgba(0,229,255,0.05);border:1px solid rgba(0,229,255,0.15);border-radius:var(--radius-sm);padding:12px;margin-bottom:8px">
+              <strong style="font-size:0.82rem;color:var(--accent)">Admin reply</strong> <span style="color:var(--text-muted);font-size:0.78rem">${formatDate(r.at)}</span>
+              <p style="margin-top:6px;color:var(--text-secondary);font-size:0.9rem">${r.message}</p>
+            </div>`).join('') : ''}
+          <div style="display:flex;gap:8px">
+            <input class="form-control" type="text" id="reply-${t.id}" placeholder="Type a reply..." style="flex:1">
+            <button class="btn btn-primary btn-sm" onclick="sendReply('${t.id}')">Reply</button>
+          </div>
+        </div>`).join('');
+    }
+
+    async function sendReply(ticketId) {
+      const input = document.getElementById(`reply-${ticketId}`);
+      const reply = input.value.trim();
+      if (!reply) return;
+      await API.post('/api/admin/support/reply', { ticketId, reply });
+      Toast.show('Reply sent!', 'success');
+      loadSupport();
+    }
+
+    function openBalModal(userId, username) {
+      currentBalUserId = userId;
+      document.getElementById('balUsername').textContent = username;
+      document.getElementById('balAmount').value = '';
+      document.getElementById('balModal').style.display = 'flex';
+    }
+
+    function closeBalModal() { document.getElementById('balModal').style.display = 'none'; }
+
+    async function doBalAction(action) {
+      const amount = parseFloat(document.getElementById('balAmount').value);
+      if (!amount || amount < 1) return Toast.show('Enter a valid amount', 'error');
+      const data = await API.post('/api/admin/users/balance', { userId: currentBalUserId, amount, action });
+      if (data.success) {
+        Toast.show(`Balance updated! New balance: ₨${data.newBalance.toFixed(2)}`, 'success');
+        closeBalModal();
+        loadUsers();
+      }
+    }
+
+    async function toggleUser(userId, btn) {
+      const data = await API.post('/api/admin/users/toggle', { userId });
+      if (data.success) {
+        Toast.show(`User ${data.isActive ? 'unbanned' : 'banned'}`, data.isActive ? 'success' : 'error');
+        loadUsers();
+      }
+    }
+
+    // Init
+    loadStats();
+
+    // Click outside modal to close
+    document.getElementById('balModal').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeBalModal();
+    });
+  </script>
+</body>
+</html>

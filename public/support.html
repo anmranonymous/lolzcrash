@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support — LolzCrash</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="/" class="nav-logo">LOLZ<span>CRASH</span></a>
+  <div class="nav-links"><a href="/">Home</a><a href="/faq">FAQ</a></div>
+</nav>
+
+<div class="support-container">
+  <h1 class="page-title text-center">🆘 Support Center</h1>
+  <p class="text-center text-dim" style="margin-bottom:2rem">We're here to help! Reach out via Telegram (fastest) or the form below.</p>
+
+  <div style="text-align:center;margin-bottom:2.5rem">
+    <a href="https://t.me/lolzcrash" target="_blank" class="telegram-btn">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/></svg>
+      Join Our Telegram: @lolzcrash
+    </a>
+    <p style="margin-top:0.75rem;color:var(--text-dim);font-size:0.85rem">⚡ Fastest response — usually within minutes!</p>
+  </div>
+
+  <div class="card">
+    <h3 style="font-family:Rajdhani,sans-serif;letter-spacing:1px;margin-bottom:1.25rem">📩 Send a Message</h3>
+    <div class="input-group">
+      <label>Your Name</label>
+      <input type="text" id="sName" placeholder="Your name">
+    </div>
+    <div class="input-group">
+      <label>Email Address</label>
+      <input type="email" id="sEmail" placeholder="your@email.com">
+    </div>
+    <div class="input-group">
+      <label>Message</label>
+      <textarea id="sMsg" rows="5" placeholder="Describe your issue in detail..." style="resize:vertical"></textarea>
+    </div>
+    <button class="btn btn-primary w-full mt-2" id="sendBtn" style="justify-content:center">📤 Send Message</button>
+  </div>
+
+  <div style="margin-top:2rem">
+    <h3 style="font-family:Rajdhani,sans-serif;letter-spacing:1px;margin-bottom:1rem">📋 Common Issues</h3>
+    <div style="display:grid;gap:0.75rem">
+      <div class="card" style="padding:1rem">
+        <strong class="text-accent">💳 Deposit not credited?</strong>
+        <p style="color:var(--text-dim);font-size:0.9rem;margin-top:0.25rem">Wait up to 2 hours after submission. If still not credited, message us on Telegram with your Transaction ID.</p>
+      </div>
+      <div class="card" style="padding:1rem">
+        <strong class="text-accent">💸 Withdrawal delayed?</strong>
+        <p style="color:var(--text-dim);font-size:0.9rem;margin-top:0.25rem">Withdrawals are processed within 24 hours. Contact us if it's been longer.</p>
+      </div>
+      <div class="card" style="padding:1rem">
+        <strong class="text-accent">🔐 Can't login?</strong>
+        <p style="color:var(--text-dim);font-size:0.9rem;margin-top:0.25rem">Make sure you're using the correct email and password. Contact support to reset your account.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>© 2024 LolzCrash · <a href="https://t.me/lolzcrash" target="_blank">@lolzcrash on Telegram</a></p>
+</footer>
+<script src="/js/app.js"></script>
+<script>
+document.getElementById('sendBtn').addEventListener('click', async () => {
+  const name = document.getElementById('sName').value.trim();
+  const email = document.getElementById('sEmail').value.trim();
+  const message = document.getElementById('sMsg').value.trim();
+  if (!name || !email || !message) return toast('Fill all fields', 'error');
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true; btn.textContent = 'Sending...';
+  const data = await api('/api/support', 'POST', { name, email, message });
+  if (data.success) { toast(data.msg, 'success'); document.getElementById('sMsg').value = ''; }
+  else toast(data.msg, 'error');
+  btn.disabled = false; btn.textContent = '📤 Send Message';
+});
+</script>
+</body>
+</html>

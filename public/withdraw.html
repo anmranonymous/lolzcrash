@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Withdraw — LolzCrash</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="/" class="nav-logo">LOLZ<span>CRASH</span></a>
+  <div class="nav-links" style="align-items:center;gap:0.5rem">
+    <a href="/dashboard">Dashboard</a>
+    <span class="nav-balance" id="nav-balance">₨ 0.00</span>
+    <button class="btn btn-ghost btn-sm" id="logout-btn">Logout</button>
+  </div>
+</nav>
+
+<div class="deposit-container">
+  <h1 class="page-title">💸 Withdraw Funds</h1>
+
+  <div class="stats-grid" style="margin-bottom:1.5rem">
+    <div class="stat-card">
+      <div class="stat-label">Available Balance</div>
+      <div class="stat-value" id="balanceShow">₨ 0.00</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Minimum Withdrawal</div>
+      <div class="stat-value text-danger">₨ 500</div>
+    </div>
+  </div>
+
+  <div class="alert alert-info">ℹ️ Withdrawals are processed <strong>manually within 24 hours</strong>. Ensure your account number is correct.</div>
+
+  <div class="card">
+    <h3 style="font-family:Rajdhani,sans-serif;letter-spacing:1px;margin-bottom:1.25rem">Withdrawal Details</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+      <div class="method-card active" id="m-jazzcash" onclick="selMethod('JazzCash')">
+        <div class="method-icon" style="font-size:1.8rem">📱</div>
+        <div class="method-name">JazzCash</div>
+      </div>
+      <div class="method-card" id="m-easypaisa" onclick="selMethod('EasyPaisa')">
+        <div class="method-icon" style="font-size:1.8rem">💚</div>
+        <div class="method-name">EasyPaisa</div>
+      </div>
+    </div>
+    <input type="hidden" id="wMethod" value="JazzCash">
+    <div class="input-group">
+      <label>Amount (PKR) — Minimum ₨500</label>
+      <input type="number" id="wAmount" placeholder="500" min="500">
+    </div>
+    <div class="input-group">
+      <label>Your Account Number (JazzCash/EasyPaisa)</label>
+      <input type="text" id="wAccount" placeholder="03XX-XXXXXXX">
+    </div>
+    <div class="alert alert-warning mt-2">⚠️ Double-check your account number. Wrong number = lost funds.</div>
+    <button class="btn btn-danger w-full mt-2" id="wBtn" style="justify-content:center">💸 Submit Withdrawal Request</button>
+  </div>
+</div>
+
+<footer>
+  <p>© 2024 LolzCrash · <a href="/support">Support</a></p>
+</footer>
+<script src="/js/app.js"></script>
+<script>
+let wMethod = 'JazzCash';
+function selMethod(m) {
+  wMethod = m;
+  document.getElementById('wMethod').value = m;
+  document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
+  document.getElementById(`m-${m.toLowerCase()}`).classList.add('active');
+}
+
+(async () => {
+  const data = await api('/api/me');
+  if (!data.success) return window.location.href = '/login';
+  document.getElementById('balanceShow').textContent = `₨ ${data.user.balance.toFixed(2)}`;
+  document.getElementById('nav-balance').textContent = `₨ ${data.user.balance.toFixed(2)}`;
+})();
+
+document.getElementById('wBtn').addEventListener('click', async () => {
+  const amount = parseFloat(document.getElementById('wAmount').value);
+  const accountNumber = document.getElementById('wAccount').value.trim();
+  if (!amount || amount < 500) return toast('Minimum withdrawal is ₨500', 'error');
+  if (!accountNumber) return toast('Enter your account number', 'error');
+  const btn = document.getElementById('wBtn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+  const data = await api('/api/withdraw', 'POST', { amount, method: wMethod, accountNumber });
+  if (data.success) { toast(data.msg, 'success'); setTimeout(() => window.location.href = '/dashboard', 2000); }
+  else { toast(data.msg, 'error'); btn.disabled = false; btn.textContent = '💸 Submit Withdrawal Request'; }
+});
+</script>
+</body>
+</html>
